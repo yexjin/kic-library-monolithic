@@ -1,0 +1,26 @@
+name: KakaoCloud-handson
+run-name: KakaoCloud handson workflow
+on: [push]
+
+jobs:
+  deploy-image:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Qemu
+      uses: docker/setup-qemu-action@v2
+
+    - name: Login KakaoCloud
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ secrets.PROJECT_NAME}}.kr-central-2.kcr.dev
+        username: ${{ secrets.ACCESS_KEY }}
+        password: ${{ secrets.ACCESS_SECRET_KEY }}
+
+    - name: Set ENV
+      run: echo "TIME=$(date "+%Y-%m-%d-%H-%M")" >> $GITHUB_ENV
+
+    - name: Build and Push
+      uses: docker/build-push-action@v4
+      with:
+        push: true
+        tags: ${{ secrets.PROJECT_NAME }}.kr-central-1.kcr.dev/${{ secrets.REPOSITORY_NAME }}/kep-library:${{ env.TIME }}
